@@ -62,6 +62,8 @@ ApplicationWindow {
     QuickStartDialog {
         id: quickStartDialog
         objectName: "rdm_qml_quick_start_dialog"
+
+        width: PlatformUtils.isOSX() ? 600 : approot.width * 0.8
     }
 
     GlobalSettings {
@@ -76,10 +78,10 @@ ApplicationWindow {
         onTestConnection: {                       
             if (connectionsManager.testConnectionSettings(settings)) {
                 hideLoader()
-                showMsg(qsTr("Successful connection to redis-server"))
+                showMsg(qsTranslate("RDM","Successful connection to redis-server"))
             } else {
                 hideLoader()
-                showError(qsTr("Can't connect to redis-server"))
+                showError(qsTranslate("RDM","Can't connect to redis-server"))
             }            
         }
 
@@ -121,15 +123,19 @@ ApplicationWindow {
     }
 
     Connections {
+        target: appEvents
+
+        onError: {
+            notification.showError(msg)
+        }
+    }
+
+    Connections {
         target: connectionsManager
 
         onEditConnection: {
             connectionSettingsDialog.settings = config
             connectionSettingsDialog.open()
-        }
-
-        onError: {            
-            notification.showError(err)
         }
 
         Component.onCompleted: {
@@ -165,25 +171,25 @@ ApplicationWindow {
                 Layout.minimumHeight: 30
 
                 onCurrentIndexChanged: {
-
+                    var realIndex;
                     if (tabs.getTab(currentIndex).tabType) {
-                        if (tabs.getTab(currentIndex).tabType == "value") {
+                        if (tabs.getTab(currentIndex).tabType === "value") {
 
-                            var realIndex = currentIndex - serverStatsModel.tabsCount();
-
-                            if (welcomeTab) {
-                                realIndex -= 1
-                            }
-
-                            viewModel.setCurrentTab(realIndex);
-                        } else if (tabs.getTab(currentIndex).tabType == "server_info") {
-                            var realIndex = currentIndex;
+                            realIndex = currentIndex - serverStatsModel.tabsCount();
 
                             if (welcomeTab) {
                                 realIndex -= 1
                             }
 
-                            serverStatsModel.setCurrentTab(index);
+                            valuesModel.setCurrentTab(realIndex);
+                        } else if (tabs.getTab(currentIndex).tabType === "server_info") {
+                            realIndex = currentIndex;
+
+                            if (welcomeTab) {
+                                realIndex -= 1
+                            }
+
+                            serverStatsModel.setCurrentTab(realIndex);
                         }
                     }
                 }
@@ -223,6 +229,15 @@ ApplicationWindow {
                 AddKeyDialog {
                     id: addNewKeyDialog
                     objectName: "rdm_qml_new_key_dialog"
+
+                    width: approot.width * 0.7
+                    height: {
+                        if (approot.height > 500) {
+                            return approot.height * 0.7
+                        } else {
+                            return approot.height
+                        }
+                    }
                 }
 
                 Connections {
@@ -273,9 +288,8 @@ ApplicationWindow {
                         textColor: "#6D6D6E"
 
                         Connections {
-                            target: appLogger
-                            onEvent: logTab.append(msg)
-                            Component.onCompleted: appLogger.getMessages()
+                            target: appEvents
+                            onLog: logTab.append(msg)
                         }
                     }
                 }

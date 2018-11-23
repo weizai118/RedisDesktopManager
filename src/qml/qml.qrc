@@ -26,7 +26,7 @@
         <file>value-editor/editors/formatters/formatters.js</file>
         <file>value-editor/editors/formatters/hexy.js</file>
         <file>value-editor/editors/editor.js</file>
-        <file>console/QConsole.qml</file>
+        <file>console/RedisConsole.qml</file>
         <file>console/BaseConsole.qml</file>
         <file>console/Consoles.qml</file>
         <file>connections-tree/BetterTreeView.qml</file>
@@ -42,5 +42,10 @@
         <file>server-info/ServerInfoTabs.qml</file>
         <file>common/platformutils.js</file>
         <file>common/NewTextArea.qml</file>
+        <file>common/BetterGroupbox.qml</file>
+        <file>common/BetterCheckbox.qml</file>
+        <file>common/BetterRadioButton.qml</file>
+        <file>common/BetterTextField.qml</file>
+        <file>common/SettingsGroupTitle.qml</file>
     </qresource>
 </RCC>

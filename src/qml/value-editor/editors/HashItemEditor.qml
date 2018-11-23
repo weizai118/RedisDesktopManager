@@ -14,7 +14,7 @@ AbstractEditor {
 
     MultilineEditor {
         id: keyText
-        fieldLabel: qsTr("Key:")
+        fieldLabel: qsTranslate("RDM","Key:")
         Layout.fillWidth: true
         Layout.minimumHeight: 30
         Layout.preferredHeight: 90
@@ -23,6 +23,7 @@ AbstractEditor {
         enabled: root.active || root.state !== "edit"
         showFormatters: root.state == "edit"
         objectName: "rdm_key_hash_key_field"
+        formatterSettingsCategory: "formatters_hash_key"
     }
 
     MultilineEditor {

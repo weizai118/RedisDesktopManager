@@ -16,6 +16,10 @@ var plain = {
         return callback("", raw, false, FORMAT_PLAIN_TEXT)
     },    
 
+    isValid: function (raw, callback) {
+        return callback(true)
+    },
+
     getRaw: function (formatted, callback) {
         return callback("", formatted)
     }
@@ -25,33 +29,27 @@ var hex = {
     title: "HEX",
 
     getFormatted: function (raw, callback) {
-
-        var isValid = binaryUtils.isBinaryString(raw)
-
-        if (isValid) {
-            return callback("", binaryUtils.printable(raw), false, FORMAT_PLAIN_TEXT)
-        } else {
-            return callback(qsTr("Value is not binary string"))
-        }
+        return callback("", qmlUtils.printable(raw), false, FORMAT_PLAIN_TEXT)
     },    
 
+    isValid: function (raw, callback) {
+        return callback(true)
+    },
+
     getRaw: function (formatted, callback) {
-        return callback("", binaryUtils.printableToValue(formatted))
+        return callback("", qmlUtils.printableToValue(formatted))
     }
 }
 
 var hexTable = {
     title: "HEX TABLE",
 
-    getFormatted: function (raw, callback) {        
+    isValid: function (raw, callback) {
+        return callback(true)
+    },
 
-        var isValid = binaryUtils.isBinaryString(raw)
-
-        if (isValid) {
-            return callback("", Hexy.hexy(binaryUtils.valueToBinary(raw), {'html': true}), true, FORMAT_HTML)
-        } else {
-            return callback(qsTr("Value is not binary string"))
-        }
+    getFormatted: function (raw, callback) {              
+        return callback("", Hexy.hexy(qmlUtils.valueToBinary(raw), {'html': true}), true, FORMAT_HTML)
     },    
 }
 
@@ -65,15 +63,24 @@ var json = {
         try {
             return callback("", JSONFormatter.prettyPrint(String(raw)), false, FORMAT_PLAIN_TEXT)
         } catch (e) {
-            return callback(qsTr("Error: Invalid JSON: ") + e)
+            return callback(qsTranslate("RDM", "Invalid JSON: ") + e)
         }
-    },    
+    },
+
+    isValid: function (raw, callback) {
+        try {
+            JSONFormatter.prettyPrint(String(raw))
+            return callback(true)
+        } catch (e) {
+            return callback(false)
+        }
+    },
 
     getRaw: function (formatted, callback) {
         try {
             return callback("", JSONFormatter.minify(formatted))
         } catch (e) {
-            return callback(qsTr("Error: ") + e)
+            return callback(qsTranslate("RDM", "Error") + ": " + e)
         }
     }
 }
@@ -100,6 +107,10 @@ function buildFormattersModel()
 
             getRaw: function (formatted, callback) {
                 return formattersManager.encode(formatterName, formatted, callback)
+            },
+
+            isValid: function (raw, callback) {
+                return formattersManager.isValid(formatterName, raw, callback)
             }
         }
     }
@@ -115,7 +126,34 @@ function buildFormattersModel()
     return formatters
 }
 
+function getFormatterIndex(name) {
+    var indexInNativeFormatters = -1
+
+    if (!formattersManager.isInstalled(name))
+        return indexInNativeFormatters
+
+    var plainList = formattersManager.getPlainList()
+
+    for (var index in plainList) {
+        if (plainList[index] === name) {
+            indexInNativeFormatters = index
+            break
+        }
+    }
+
+    return parseInt(indexInNativeFormatters) + enabledFormatters.length
+
+}
+
 function guessFormatter(isBinary)
 {
-   return isBinary? 2 : 0
+    if (isBinary) {
+        if (formattersManager.isInstalled("python-decompresser")) {
+            return [getFormatterIndex("python-decompresser"), 2]
+        }
+
+        return 2
+    } else {
+        return 0
+    }
 }

@@ -15,17 +15,20 @@ Repeater {
         title: tabName
         icon: "qrc:/images/console.svg"
 
-        onClose: {
-            consoleModel.closeTab(tabIndex)
-        }
+        property var redisConsoleVar
 
-        QConsole {
+        RedisConsole {
             id: redisConsole
 
             property var model: consoleModel.getValue(tabIndex)
 
+            function close() {
+                redisConsole.model = null;
+                consoleModel.closeTab(tabIndex);
+            }
+
             Connections {
-                target: consoleModel ? consoleModel.getValue(tabIndex) : null
+                target: redisConsole.model ? redisConsole.model : null
 
                 onChangePrompt: {                    
                     redisConsole.setPrompt(text, showPrompt)
@@ -55,7 +58,42 @@ Repeater {
                     return redisConsole.busy ? "qrc:/images/wait.svg" : "qrc:/images/console.svg"
                 })
                 initTimer.start()
+                tab.redisConsoleVar = redisConsole
             }
+
+            Dialog {
+                id: closeConfirmation
+                title: qsTranslate("RDM","Confirm Action")
+
+                width: 520
+
+                RowLayout {
+                    implicitWidth: 500
+                    implicitHeight: 100
+                    width: 500
+
+                    Text { text: qsTranslate("RDM","Do you really want to close console with running command?") }
+                }
+
+                onYes: redisConsole.close()
+
+                visible: false
+                modality: Qt.ApplicationModal
+                standardButtons: StandardButton.Yes | StandardButton.Cancel
+            }
+
+            function closeConfirmation() {
+                closeConfirmation.open()
+            }
+        }      
+
+        onClose: {
+            if (redisConsoleVar && redisConsoleVar.busy) {
+                redisConsoleVar.closeConfirmation()
+                return
+            }
+
+            redisConsoleVar.close()
         }
     }
 }

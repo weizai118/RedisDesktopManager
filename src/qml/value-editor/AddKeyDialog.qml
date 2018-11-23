@@ -8,23 +8,22 @@ import "./editors/editor.js" as Editor
 
 Dialog {
     id: root
-    title: qsTr("Add New Key")
-    width: 550
-    height: 500
-    modality: Qt.ApplicationModal
+    title: qsTranslate("RDM","Add New Key")
     visible: false
 
     standardButtons: StandardButton.NoButton
 
     Item {
         anchors.fill: parent
+        implicitHeight: 500
+        implicitWidth: 600
 
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 5
 
             Text {
-                text: qsTr("Key:")
+                text: qsTranslate("RDM","Key:")
             }
             TextField {
                 id: newKeyName
@@ -33,7 +32,7 @@ Dialog {
             }
 
             Text {
-                text: qsTr("Type:")
+                text: qsTranslate("RDM","Type:")
             }
             ComboBox {
                 id: typeSelector
@@ -45,6 +44,7 @@ Dialog {
             Loader {
                 id: valueAddEditor
                 Layout.fillWidth: true
+                Layout.fillHeight: true
                 Layout.preferredHeight: 300
 
                 source: Editor.getEditorByTypeString(
@@ -63,7 +63,7 @@ Dialog {
                     Layout.fillWidth: true
                 }
                 Button {
-                    text: qsTr("Save")
+                    text: qsTranslate("RDM","Save")
 
                     onClicked: {
                         if (!valueAddEditor.item)
@@ -74,7 +74,7 @@ Dialog {
                                 return;
 
                             var row = valueAddEditor.item.getValue()
-                            viewModel.addKey(
+                            valuesModel.addKey(
                                 newKeyName.text,
                                 typeSelector.model[typeSelector.currentIndex],
                                 row, afterSave
@@ -96,7 +96,7 @@ Dialog {
                 }
 
                 Button {
-                    text: qsTr("Cancel")
+                    text: qsTranslate("RDM","Cancel")
                     onClicked: root.close()
                 }
             }
@@ -104,15 +104,15 @@ Dialog {
                 Layout.fillWidth: true
             }
         }
-    }
 
-    MessageDialog {
-        id: addError
-        title: qsTr("Error")
-        text: ""
-        visible: false
-        modality: Qt.ApplicationModal
-        icon: StandardIcon.Warning
-        standardButtons: StandardButton.Ok
+        MessageDialog {
+            id: addError
+            title: qsTranslate("RDM","Error")
+            text: ""
+            visible: false
+            modality: Qt.ApplicationModal
+            icon: StandardIcon.Warning
+            standardButtons: StandardButton.Ok
+        }
     }
 }

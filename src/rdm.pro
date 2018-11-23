@@ -14,11 +14,10 @@ TEMPLATE = app
     DEFINES += RDM_VERSION=\\\"0.9.999\\\"
 }
 
-DEFINES += CORE_LIBRARY ELPP_QT_LOGGING ELPP_STL_LOGGING ELPP_DISABLE_DEFAULT_CRASH_HANDLING
-
 SOURCES += \
     $$PWD/main.cpp \
     $$PWD/app/app.cpp \
+    $$PWD/app/events.cpp \
     $$PWD/app/qmlutils.cpp \
     $$PWD/app/models/*.cpp \
     $$PWD/app/models/key-models/*.cpp \
@@ -34,7 +33,7 @@ SOURCES += \
 
 HEADERS  += \
     $$PWD/app/app.h \
-    $$PWD/app/logger.h \
+    $$PWD/app/events.h \    
     $$PWD/app/qmlutils.h \
     $$PWD/app/models/*.h \
     $$PWD/app/models/key-models/*.h \
@@ -91,7 +90,7 @@ unix:macx { # OSX
 
 unix:!macx { # ubuntu & debian
     CONFIG += static release
-    CONFIG -= debug    
+    CONFIG -= debug
 
     QTPLUGIN += qsvg qsvgicon
 
@@ -139,7 +138,12 @@ RESOURCES += \
     $$PWD/resources/images.qrc \
     $$PWD/resources/fonts.qrc \    
     $$PWD/qml/qml.qrc \
-    $$PWD/resources/tr.qrc \
+    $$PWD/resources/commands.qrc
+
+exists( $$PWD/resources/translations/rdm.qm ) {
+    message("Translations found")
+    RESOURCES += $$PWD/resources/tr.qrc
+}
 
 OTHER_FILES += \
     qt.conf \
@@ -163,6 +167,7 @@ lupdate_only{
 TRANSLATIONS = \
     $$PWD/resources/translations/rdm.ts \
     $$PWD/resources/translations/rdm_zh_CN.ts \
-    $$PWD/resources/translations/rdm_zh_TW.ts
+    $$PWD/resources/translations/rdm_zh_TW.ts \
+    $$PWD/resources/translations/rdm_ru_RU.ts \
 
 CODECFORSRC = UTF-8

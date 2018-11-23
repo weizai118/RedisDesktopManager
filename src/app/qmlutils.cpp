@@ -35,11 +35,16 @@ QString QmlUtils::humanSize(long size)
     QStringListIterator i(list);
     QString unit("bytes");
 
+    if (size < 1024) {
+        return QString().setNum(num)+" "+unit;
+    }
+
     while(num >= 1024.0 && i.hasNext())
      {
         unit = i.next();
         num /= 1024.0;
     }
+
     return QString().setNum(num,'f',2)+" "+unit;
 }
 
@@ -154,7 +159,8 @@ void QmlUtils::addNewValueToDynamicChart(QtCharts::QXYSeries *series, double val
 
 QObject *QmlUtils::wrapLargeText(const QByteArray &text)
 {    
-    auto w = new ValueEditor::LargeTextWrappingModel(QString::fromUtf8(text));
+    //NOTE(u_glide): Use 150Kb chunks
+    auto w = new ValueEditor::LargeTextWrappingModel(QString::fromUtf8(text), 153600);
     w->setParent(this);
     return w;
 }
